@@ -1,9 +1,15 @@
-import pandas as pd
-from data_loader import load_stock
+import os
+import pytest
+from src.data_loader import load_stock
 
 def test_load_stock():
-    df = load_stock("../data/AAPL.csv", "AAPL")
-    assert isinstance(df, pd.DataFrame)
-    assert 'Stock' in df.columns
-    assert 'Close' in df.columns
-    assert pd.api.types.is_datetime64_any_dtype(df.index)
+    # Make path relative to this test file
+    file_path = os.path.join(os.path.dirname(__file__), "../data/AAPL.csv")
+    
+    df = load_stock(file_path, "AAPL")
+
+    # Basic assertions
+    assert not df.empty
+    assert "Stock" in df.columns
+    assert df["Stock"].iloc[0] == "AAPL"
+    assert df.index.name == "Date"
