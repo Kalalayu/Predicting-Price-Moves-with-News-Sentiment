@@ -1,5 +1,6 @@
 import pandas as pd
-from indicators import add_sma, add_rsi
+from src.indicators import add_sma, add_rsi
+
 
 def test_indicators():
     df = pd.DataFrame({'Close': [10,11,12,13,14,15,16,17,18,19,20]})

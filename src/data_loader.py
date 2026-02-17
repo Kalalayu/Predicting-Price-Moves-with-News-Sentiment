@@ -1,21 +1,27 @@
+# src/data_loader.py
+
+import os
 import pandas as pd
 
+
+def load_news(path: str) -> pd.DataFrame:
+    news = pd.read_csv(path)
+    news.columns = news.columns.str.strip()
+    news["date"] = pd.to_datetime(news["date"], errors="coerce")
+    news = news.dropna(subset=["date"])
+    news["date_only"] = news["date"].dt.date
+    return news
+
+
 def load_stock(file_path: str, stock_name: str) -> pd.DataFrame:
-    """
-    Load a single stock CSV, convert Date to datetime, and add Stock column.
-    """
-    df = pd.read_csv(file_path)
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.set_index('Date', inplace=True)
-    df['Stock'] = stock_name
+    df = pd.read_csv(file_path, parse_dates=["Date"])
+    df["Stock"] = stock_name
     return df
 
-def load_all_stocks(stock_files: dict) -> pd.DataFrame:
-    """
-    Load all stocks from a dictionary of file paths.
-    Returns a single concatenated DataFrame.
-    """
-    stocks = [load_stock(fp, name) for name, fp in stock_files.items()]
-    all_stocks = pd.concat(stocks)
-    all_stocks.sort_index(inplace=True)
-    return all_stocks
+
+def load_all_stocks(data_dir: str, files: list, names: list) -> pd.DataFrame:
+    stocks = {
+        name: load_stock(os.path.join(data_dir, file), name)
+        for file, name in zip(files, names)
+    }
+    return pd.concat(stocks.values(), ignore_index=True)
